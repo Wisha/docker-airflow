@@ -1,23 +1,26 @@
 version: '2.1'
 services:
     redis:
-        image: 'redis:5.0.5'
+        image: 'redis:4.0.10'
         # command: redis-server --requirepass redispass
-
+        ports:
+            - "6379:6379"
     postgres:
-        image: postgres:9.6
+        image: postgres:9.6.8
         environment:
             - POSTGRES_USER=airflow
             - POSTGRES_PASSWORD=airflow
             - POSTGRES_DB=airflow
+        ports:
+            - "5432:5432"
         # Uncomment these lines to persist data on the local filesystem.
         #     - PGDATA=/var/lib/postgresql/data/pgdata
         # volumes:
         #     - ./pgdata:/var/lib/postgresql/data/pgdata
 
     webserver:
-        image: puckel/docker-airflow:1.10.9
-        restart: always
+        image: docker-airflow:latest
+        restart: on-failure
         depends_on:
             - postgres
             - redis
@@ -25,12 +28,19 @@ services:
             - LOAD_EX=n
             - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
             - EXECUTOR=Celery
-            # - POSTGRES_USER=airflow
-            # - POSTGRES_PASSWORD=airflow
-            # - POSTGRES_DB=airflow
+            - POSTGRES_USER=airflow
+            - POSTGRES_PASSWORD=airflow
+            - POSTGRES_DB=airflow
+            - REDIS_HOST=redis
+            - REDIS_PORT=6379
+            - AIRFLOW__WEBSERVER__RBAC=False
+            - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+            - AIRFLOW__WEBSERVER__BASE_URL=http://localhost:8080
+            - VARIABLES_FILE=dev.json
             # - REDIS_PASSWORD=redispass
         volumes:
             - ./dags:/usr/local/airflow/dags
+            - ~/.aws:/usr/local/airflow/.aws
             # Uncomment to include custom plugins
             # - ./plugins:/usr/local/airflow/plugins
         ports:
@@ -43,50 +53,70 @@ services:
             retries: 3
 
     flower:
-        image: puckel/docker-airflow:1.10.9
-        restart: always
+        image: docker-airflow:latest
+        restart: on-failure
         depends_on:
             - redis
         environment:
+            - REDIS_HOST=redis
+            - REDIS_PORT=6379
             - EXECUTOR=Celery
+            - AIRFLOW__WEBSERVER__BASE_URL=http://localhost:8080
+            - VARIABLES_FILE=dev.json
             # - REDIS_PASSWORD=redispass
         ports:
             - "5555:5555"
         command: flower
 
     scheduler:
-        image: puckel/docker-airflow:1.10.9
-        restart: always
+        image: docker-airflow:latest
+        restart: on-failure
         depends_on:
             - webserver
         volumes:
-            - ./dags:/usr/local/airflow/dags
+            - ./logs:/usr/local/airflow/logs
+            - ~/.aws:/usr/local/airflow/.aws
             # Uncomment to include custom plugins
             # - ./plugins:/usr/local/airflow/plugins
         environment:
             - LOAD_EX=n
             - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
             - EXECUTOR=Celery
-            # - POSTGRES_USER=airflow
-            # - POSTGRES_PASSWORD=airflow
-            # - POSTGRES_DB=airflow
+            - POSTGRES_HOST=postgres
+            - POSTGRES_PORT=5432
+            - POSTGRES_USER=airflow
+            - POSTGRES_PASSWORD=airflow
+            - POSTGRES_DB=airflow
+            - REDIS_HOST=redis
+            - REDIS_PORT=6379
+            - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+            - AIRFLOW__WEBSERVER__BASE_URL=http://localhost:8080
+            - VARIABLES_FILE=dev.json
             # - REDIS_PASSWORD=redispass
         command: scheduler
 
     worker:
-        image: puckel/docker-airflow:1.10.9
-        restart: always
+        image: docker-airflow:latest
+        restart: on-failure
         depends_on:
             - scheduler
         volumes:
-            - ./dags:/usr/local/airflow/dags
+            - ./logs:/usr/local/airflow/logs
+            - ~/.aws:/usr/local/airflow/.aws
             # Uncomment to include custom plugins
             # - ./plugins:/usr/local/airflow/plugins
         environment:
+            - LOAD_EX=n
             - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
             - EXECUTOR=Celery
-            # - POSTGRES_USER=airflow
-            # - POSTGRES_PASSWORD=airflow
-            # - POSTGRES_DB=airflow
-            # - REDIS_PASSWORD=redispass
+            - POSTGRES_HOST=postgres
+            - POSTGRES_PORT=5432
+            - POSTGRES_USER=airflow
+            - POSTGRES_PASSWORD=airflow
+            - POSTGRES_DB=airflow
+            - REDIS_HOST=redis
+            - REDIS_PORT=6379
+            - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+            - AIRFLOW__WEBSERVER__BASE_URL=http://localhost:8080
+            - VARIABLES_FILE=dev.json
         command: worker

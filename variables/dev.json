@@ -1,0 +1,4 @@
+{
+  "name_of_dag1": "{\"key_argument1\":\"value_argument1\"}",
+  "name_of_dag2": "{\"key_argument1\":\"value_argument1\",\"key_argument2\":\"value_argument2\"}"
+}
