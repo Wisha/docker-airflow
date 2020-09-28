@@ -1,0 +1,23 @@
+aws_profile_env: "dev"
+docker_tag_env: "latest" # Use specific hash for Prod
+ecs_service_desired_count_env: 1
+ecr_create_env: true
+
+memory_reservation_env: "3800"
+
+image_env: "395178827165.dkr.ecr.ap-southeast-2.amazonaws.com/docker-airflow:{{ docker_tag_env }}"
+
+redis_host_env: "airflowqueue.ix9qn2.ng.0001.apse2.cache.amazonaws.com"
+
+postgres_host_env: "datawarehouse.sfsdfs.ap-southeast-2.rds.amazonaws.com"
+postgres_user_env: "u_airflow"
+postgres_db_env: "airflow"
+# postgres_password_env is in ansiblevault
+
+airflow_conn_s3_logging_env: "s3://seek-airflow-dev/logs"
+webserver_hostname_env: "master.airflow"
+airflow_webserver_base_url_env: "http://airflow-dev.xyz:8080"
+
+load_ex_env: "n"
+
+variables_file_env: "dev.json"

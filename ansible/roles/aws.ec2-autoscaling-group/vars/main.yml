@@ -1,0 +1,23 @@
+---
+# vars file for ansible-infra.aws-asg
+
+# Launch config related
+# http://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_container_instance.html
+asg_launch_config_amis_per_region:
+  us-east-2:	"ami-9f9cbafa"
+  us-east-1:	"ami-83af8395"
+  us-west-2:	"ami-11120768"
+  us-west-1:	"ami-c1c6eba1"
+  eu-west-2:	"ami-767e6812"
+  eu-west-1:	"ami-5f140c39"
+  eu-central-1:	"ami-e656f189"
+  ap-northeast-1:	"ami-fd10059a"
+  ap-southeast-2:	"ami-2ab95148" #Modified this AMI
+  ap-southeast-1:	"ami-1926ab7a"
+  ca-central-1:	"ami-ead8678e"
+
+asg_tag_name:
+  Name: "{{ asg_ecs_cluster_name }}"
+  propagate_at_launch: true
+
+asg_tags: "{{ asg_additional_tags + [ asg_tag_name ] }}"

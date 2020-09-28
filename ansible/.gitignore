@@ -1,0 +1,6 @@
+.idea
+.vaultpassword
+*.retry
+ansible-aws-infra-services-*
+# IntelliJ
+*.iml

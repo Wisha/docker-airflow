@@ -1,0 +1,16 @@
+aws_profile_env: "dev"
+vpc_id_env: "vpc-0b3b165b5f675ac46"
+environment_env: "development"
+asg_launch_config_key_name_env: "genesis-dev"
+asg_launch_config_instance_profile_name_env: "ecsInstanceRole"
+asg_subnets_env: ['subnet-06903834876ad169c', 'subnet-0d3369370eaa3ab25']
+asg_additional_security_groups_env: ['<list of additional security groups if needed>']
+asg_desired_capacity_env: 1
+
+asg_launch_config_instance_size_env: c5.xlarge
+
+asg_additional_user_data_bootcmd: |
+  - yum update -y
+  - yum install -y amazon-efs-utils
+  - mkdir /efs
+  - mount -t efs <<CHANGETHIS-fs-d1a013e8>>:/ /efs
